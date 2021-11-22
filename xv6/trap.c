@@ -36,6 +36,16 @@ idtinit(void)
 void
 trap(struct trapframe *tf)
 {
+  if(tf->trapno == T_PGFLT){ // Lab 3 Changes
+    uint addr = rcr2();
+    addr = PGROUNDDOWN(addr);
+    if(allocuvm(myproc()->pgdir, addr, addr + PGSIZE) == 0) {
+      cprintf("Cannot add more to stack");
+      exit();
+    }
+    return;
+  }
+
   if(tf->trapno == T_SYSCALL){
     if(myproc()->killed)
       exit();
